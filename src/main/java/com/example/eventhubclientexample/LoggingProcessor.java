@@ -25,6 +25,16 @@ public class LoggingProcessor implements IEventProcessor {
 
     @Override
     public void onEvents(PartitionContext context, Iterable<EventData> messages) throws Exception {
-        log.info("I live");
+        int messagesSinceLastCheckpoint = 0;
+
+        for(EventData event : messages) {
+            messagesSinceLastCheckpoint++;
+
+            log.info("Event: {}", new String(event.getBody(), "UTF8"));
+
+            if (messagesSinceLastCheckpoint % 5 == 0) {
+                context.checkpoint(event);
+            }
+        }
     }
 }
